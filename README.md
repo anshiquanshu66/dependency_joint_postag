@@ -8,8 +8,8 @@ The implementation is based on the dependency parser by Ma et al. (2018) (https:
 This implementation requires Python 3.6, PyTorch 0.4.1 and Gensim >= 0.12.0.
 Our suggestion is to use conda to install the required environment:
 
-conda create -n myenv python=3.6; source activate myenv; conda install gensim;
-conda install pytorch=0.4.1 cudatoolkit=9.2 -c pytorch
+* `conda create -n myenv python=3.6; source activate myenv; conda install gensim;`
+* `conda install pytorch=0.4.1 cudatoolkit=9.2 -c pytorch`
 
 ### Running the experiments
 
