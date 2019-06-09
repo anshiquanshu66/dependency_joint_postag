@@ -7,7 +7,7 @@ CUDA_VISIBLE_DEVICES=0 python graph_parser_joint_pos.py --cuda --mode LSTM --num
  --objective cross_entropy --decode greedy \
  --char_embedding random \
  --punctuation '.' '``' "''" ':' ',' \
- --train "/home/hnc/PycharmProjects/dependency-vtcc/data/ud-treebanks-v2.2/UD_Vietnamese-VTB/vi_vtb-ud-train.conllu" \
- --dev "/home/hnc/PycharmProjects/dependency-vtcc/data/ud-treebanks-v2.2/UD_Vietnamese-VTB/vi_vtb-ud-dev.conllu" \
- --test "/home/hnc/PycharmProjects/dependency-vtcc/data/ud-treebanks-v2.2/UD_Vietnamese-VTB/vi_vtb-ud-test.conllu" \
+ --train "data/ud-treebanks-v2.2/UD_Vietnamese-VTB/vi_vtb-ud-train.conllu" \
+ --dev "data/ud-treebanks-v2.2/UD_Vietnamese-VTB/vi_vtb-ud-dev.conllu" \
+ --test "data/ud-treebanks-v2.2/UD_Vietnamese-VTB/vi_vtb-ud-test.conllu" \
  --model_path "results/biaffine_pos/" --model_name 'network.pt'
