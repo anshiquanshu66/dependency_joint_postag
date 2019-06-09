@@ -14,7 +14,7 @@ def load_embedding_dict(embedding, embedding_path, normalize_digits=True):
     elif embedding == 'glove':
         embedd_dim = -1
         embedd_dict = dict()
-        count = 0
+
         with open(embedding_path, 'rb') as file:
             for line in file:
                 line = line.strip()

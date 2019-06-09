@@ -26,49 +26,41 @@ def main():
     args_parser = argparse.ArgumentParser("Dependency parser")
     args_parser.add_argument('--mode', default='LSTM', choices=['LSTM', 'RNN', 'GRU'])
     args_parser.add_argument('--cuda', action='store_true', help='using GPU', default=True)
-    args_parser.add_argument('--num_epochs', type=int, default=1000)
-    args_parser.add_argument('--batch_size', type=int, default=80)
-    args_parser.add_argument('--hidden_size', type=int, default=512)
-    args_parser.add_argument('--arc_space', type=int, default=512)
-    args_parser.add_argument('--type_space', type=int, default=128)
-    args_parser.add_argument('--num_layers', type=int, default=3)
-    args_parser.add_argument('--num_filters', type=int, default=100)
-    args_parser.add_argument('--pos', action='store_true', default=True)
-    args_parser.add_argument('--char', action='store_true', default=True)
-    args_parser.add_argument('--pos_dim', type=int, default=100)
-    args_parser.add_argument('--char_dim', type=int, default=64)
-    args_parser.add_argument('--opt', default='adam', choices=['adam', 'sgd', 'adamax'])
-    args_parser.add_argument('--objective', default='cross_entropy', choices=['cross_entropy','crf'])
-    args_parser.add_argument('--decode', default='greedy', choices=['mst', 'greedy'])
-    args_parser.add_argument('--learning_rate', type=float, default=0.001)
-    args_parser.add_argument('--decay_rate', type=float, default=0.75)
-    args_parser.add_argument('--clip', type=float, default=5.0)
-    args_parser.add_argument('--gamma', type=float, default=0.0)
-    args_parser.add_argument('--epsilon', type=float, default=1e-4)
-    args_parser.add_argument('--p_in', type=float, default=0.33)
-    args_parser.add_argument('--p_out', type=float, default=0.33)
-    args_parser.add_argument('--schedule', type=int, default=10)
-    args_parser.add_argument('--unk_replace', type=float, default=0.5)
-    args_parser.add_argument('--punctuation', nargs='+', type=str)
-    args_parser.add_argument('--word_embedding', default='glove')
-    args_parser.add_argument('--word_path', default='/home/hnc/PycharmProjects/dependency-vtcc/data/vectors.txt')
-    args_parser.add_argument('--freeze', action='store_true')
-    args_parser.add_argument('--char_embedding', default='random', choices=['random', 'polyglot'])
-    args_parser.add_argument('--char_path')
-
-    folder = "UD_Japanese-GSD"
-    file_name = "ja_gsd-ud"
-    args_parser.add_argument('--train', default='./data/ud-treebanks-v2.2/' + folder + '/' + file_name + '-train.conllu')
-    args_parser.add_argument('--dev', default='./data/ud-treebanks-v2.2/' + folder + '/' + file_name + '-dev.conllu')
-    args_parser.add_argument('--test', default='./data/ud-treebanks-v2.2/' + folder + '/' + file_name + '-test.conllu')
-
-    #folder_name = 'UD_Portuguese'
-    #args_parser.add_argument('--train', default='./data/UDTreebank/' + folder_name + '/' + 'train.conllu')
-    #args_parser.add_argument('--dev', default='./data/UDTreebank/' + folder_name + '/' + 'dev.conllu')
-    #args_parser.add_argument('--test', default='./data/UDTreebank/' + folder_name + '/' + 'test.conllu')
-
-    args_parser.add_argument('--model_path', default='./results/biaffine_pos/')
-    args_parser.add_argument('--model_name', default='network.pt')
+    args_parser.add_argument('--num_epochs', type=int, default=1000, help='Number of training epochs')
+    args_parser.add_argument('--batch_size', type=int, default=80, help='Number of sentences in each batch')
+    args_parser.add_argument('--hidden_size', type=int, default=512, help='Number of hidden units in RNN')
+    args_parser.add_argument('--arc_space', type=int, default=512, help='Dimension of tag space')
+    args_parser.add_argument('--type_space', type=int, default=128, help='Dimension of tag space')
+    args_parser.add_argument('--num_layers', type=int, default=3, help='Number of layers of RNN')
+    args_parser.add_argument('--num_filters', type=int, default=100, help='Number of filters in CNN')
+    args_parser.add_argument('--pos', action='store_true', default=True, help='use part-of-speech embedding.')
+    args_parser.add_argument('--char', action='store_true', default=True, help='use character embedding and CNN.')
+    args_parser.add_argument('--pos_dim', type=int, default=100, help='Dimension of POS embeddings')
+    args_parser.add_argument('--char_dim', type=int, default=64, help='Dimension of Character embeddings')
+    args_parser.add_argument('--opt', default='adam', choices=['adam', 'sgd', 'adamax'], help='optimization algorithm')
+    args_parser.add_argument('--objective', default='cross_entropy', choices=['cross_entropy','crf'], help='objective function of training procedure.')
+    args_parser.add_argument('--decode', default='greedy', choices=['mst', 'greedy'], help='decoding algorithm')
+    args_parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate')
+    args_parser.add_argument('--decay_rate', type=float, default=0.75, help='Decay rate of learning rate')
+    args_parser.add_argument('--clip', type=float, default=5.0, help='gradient clipping')
+    args_parser.add_argument('--gamma', type=float, default=0.0, help='weight for regularization')
+    args_parser.add_argument('--epsilon', type=float, default=1e-4, help='epsilon for adam or adamax')
+    args_parser.add_argument('--p_rnn', nargs=2, type=float, required=True, help='dropout rate for RNN')
+    args_parser.add_argument('--p_in', type=float, default=0.33, help='dropout rate for input embeddings')
+    args_parser.add_argument('--p_out', type=float, default=0.33, help='dropout rate for output layer')
+    args_parser.add_argument('--schedule', type=int, default=10, help='schedule for learning rate decay')
+    args_parser.add_argument('--unk_replace', type=float, default=0.5, help='The rate to replace a singleton word with UNK')
+    args_parser.add_argument('--punctuation', nargs='+', type=str, help='List of punctuations')
+    # args_parser.add_argument('--word_embedding', default='glove', help='Embedding for words')
+    # args_parser.add_argument('--word_path', default='./data/vectors.txt')
+    args_parser.add_argument('--freeze', action='store_true', help='frozen the word embedding (disable fine-tuning).')
+    args_parser.add_argument('--char_embedding', default='random', choices=['random', 'polyglot'], help='Embedding for characters')
+    args_parser.add_argument('--char_path', help='path for character embedding dict')
+    args_parser.add_argument('--train')
+    args_parser.add_argument('--dev')
+    args_parser.add_argument('--test')
+    args_parser.add_argument('--model_path', default='./results/biaffine_pos/', help='path for saving model file.')
+    args_parser.add_argument('--model_name', default='network.pt', help='name for saving model file.')
 
     args_parser.add_argument('--tag_space', type=int, default=0, help='Dimension of tag space')
     args_parser.add_argument('--bigram', action='store_true', help='bi-gram parameter for CRF')
@@ -99,16 +91,17 @@ def main():
     clip = args.clip
     gamma = args.gamma
     schedule = args.schedule
-    p_rnn = 0.33, 0.33
+    # p_rnn = 0.33, 0.33
+    p_rnn = tuple(args.p_rnn)
     p_in = args.p_in
     p_out = args.p_out
     unk_replace = args.unk_replace
-    # punctuation = args.punctuation
-    punctuation = 'PUNCT', 'SYM'
+    punctuation = args.punctuation
+    # punctuation = 'PUNCT', 'SYM'
 
     freeze = args.freeze
-    word_embedding = args.word_embedding
-    word_path = args.word_path
+    # word_embedding = args.word_embedding
+    # word_path = args.word_path
 
     use_char = args.char
     char_embedding = args.char_embedding
@@ -137,10 +130,6 @@ def main():
     num_chars = char_alphabet.size()
     num_pos = pos_alphabet.size()
     num_types = type_alphabet.size()
-
-    # use_gpu = torch.cuda.is_available()
-    # use_gpu = False
-    # print(use_gpu)
 
     initializer = nn.init.xavier_uniform_
 
@@ -295,10 +284,6 @@ def main():
     decay = 0
     max_decay = 9
     double_schedule_decay = 5
-    dev_correct_postag = 0.0
-    best_epoch_postag = 0
-    test_correct_postag = 0.0
-    test_total_postag = 0
     for epoch in range(1, num_epochs + 1):
         print('Epoch %d (%s, optim: %s, learning rate=%.6f, eps=%.1e, decay rate=%.2f (schedule=%d, patient=%d, decay=%d)): ' % (epoch, mode, opt, lr, eps, decay_rate, schedule, patient, decay))
         train_err = 0.
@@ -373,9 +358,6 @@ def main():
             dev_total_root = 0.0
             dev_total_inst = 0.0
 
-            dev_corr_postag = 0.0
-            dev_total_postag = 0
-
             for batch in conllx_data.iterate_batch_tensor(data_dev, batch_size):
                 word, char, pos, heads, types, masks, lengths = batch
                 heads_pred, types_pred = decode(word, char, pos, mask=masks, length=lengths, leading_symbolic=conllx_data.NUM_SYMBOLIC_TAGS)
@@ -409,13 +391,6 @@ def main():
                 dev_total_root += total_root
 
                 dev_total_inst += num_inst
-
-                word, char, pos, _, _, masks, _ = batch
-                preds, corr = postag.decode(word, char, target=pos, mask=masks,
-                                              leading_symbolic=conllx_data.NUM_SYMBOLIC_TAGS)
-                num_tokens = masks.sum()
-                dev_corr_postag += corr
-                dev_total_postag += num_tokens
 
             pred_writer.close()
             gold_writer.close()
@@ -563,30 +538,8 @@ def main():
             print(
                 '============================================================================================================================')
 
-            if dev_correct_postag < dev_corr_postag:
-                 dev_correct_postag = dev_corr_postag
-                 best_epoch_postag = epoch
-
-                 # evaluate on test data when better performance detected
-                 test_corr_postag = 0.0
-                 test_total_postag = 0
-                 for batch in conllx_data.iterate_batch_tensor(data_test, batch_size):
-                     word, char, pos, _, _, masks, lengths = batch
-                     preds, corr = postag.decode(word, char, target=pos, mask=masks, leading_symbolic=conllx_data.NUM_SYMBOLIC_TAGS)
-                     num_tokens = masks.sum()
-                     test_corr_postag += corr
-                     test_total_postag += num_tokens
-
-                 test_correct_postag = test_corr_postag
-            print("POSTAG best dev  corr: %d, total: %d, acc: %.2f%% (epoch: %d)" % (dev_correct_postag, dev_total_postag, dev_correct_postag * 100 / dev_total_postag, best_epoch_postag))
-            print("POSTAG best test corr: %d, total: %d, acc: %.2f%% (epoch: %d)" % (test_correct_postag, test_total_postag, test_correct_postag * 100 / test_total_postag, best_epoch_postag))
-
             if decay == max_decay:
                 break
-
-        if epoch % schedule == 0:
-             lr_postag = learning_rate / (1.0 + epoch * decay_rate)
-             optim_postag = SGD(network.parameters(), lr=lr_postag, momentum=momentum, weight_decay=gamma, nesterov=True)
 
     print('OK')
 
